@@ -9,6 +9,7 @@ const addTextWatermarkToImage = async function(inputFile, outputFile, text) {
     alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
     alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE,
   };
+
   image.print(font, 0, 0, textData, image.getWidth(), image.getHeight());
   await image.quality(100).writeAsync(outputFile);
 };
@@ -24,6 +25,11 @@ const addImageWatermarkToImage = async function(inputFile, outputFile, watermark
         opacitySource: 0.5,
     });
       await image.quality(100).writeAsync(outputFile);
+};
+
+const prepareOutputFilename = fullFileName => {
+    const [name, extension] = fullFileName.split('.');
+    return `${name}-with-watermark.${extension}`;
 };
 
 const startApp = async () => {
@@ -55,11 +61,10 @@ const startApp = async () => {
             name: 'value',
             type: 'input',
             message: 'Type your watermark text:',
-            }]);
+        }]);
             options.watermarkText = text.value;
-            addTextWatermarkToImage('./img/' + options.inputImage, './test-with-watermark.jpg', options.watermarkText);
-        }
-        else {
+            addTextWatermarkToImage('./img/' + options.inputImage, './img/' + prepareOutputFilename(options.inputImage), options.watermarkText);    }
+    else {
             const image = await inquirer.prompt([{
             name: 'filename',
             type: 'input',
@@ -67,8 +72,7 @@ const startApp = async () => {
             default: 'logo.png',
             }]);
             options.watermarkImage = image.filename;
-            addImageWatermarkToImage('./img/' + options.inputImage, './test-with-watermark.jpg', './img/' + options.watermarkImage);
-        }
+            addImageWatermarkToImage('./img/' + options.inputImage, './img/' + prepareOutputFilename(options.inputImage), './img/' + options.watermarkImage);        }
 };
 
   startApp();
